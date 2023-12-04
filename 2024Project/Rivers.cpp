@@ -1,20 +1,25 @@
 #include "Rivers.h"
+using namespace std;
 
-Rivers::Rivers(const std::vector<std::string>& filenames) 
+Rivers::Rivers(const vector<string>& filenames) 
 {
+	// "Europe.txt", "Africa.txt", "Asia.txt", "South America.txt" "~/2024Project/***.txt"
 }
 
-std::string Rivers::getRandomRiver() 
+string Rivers::getRandomRiver() 
 {
+	
 	return "";
 }
 
-bool Rivers::sameContinent(std::string r1, std::string r2)
+bool Rivers::sameContinent(string r1, string r2)
 {
+	
 	return false;
 }
 
-std::string Rivers::getContinent(std::string river) 
+string Rivers::getContinent(string river) 
 {
+	
 	return "";
 }
