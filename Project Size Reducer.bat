@@ -1,0 +1,3 @@
+RMDIR /S /Q .vs
+RMDIR /S /Q x64
+RMDIR /S /Q 2024Project\x64
