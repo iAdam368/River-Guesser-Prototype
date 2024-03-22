@@ -1,71 +1,110 @@
 #include "Game.h"
 
-bool Game::playRound(std::ostream& out, std::istream& in) {
 
+
+bool Game::playRound(std::ostream& out, std::istream& in) 
+{
 	// Generating two random rivers
-	std::string r1 = r.getRandomRiver();
-	std::string r2 = r.getRandomRiver();
+	std::string river1 = r.getRandomRiver();
+	std::string river2 = r.getRandomRiver();
+	out << river1 << "\n";
+	out << river2 << "\n";
 
-	// Outputting two rivers as long as they are both different
-	while (r1 == r2) {
-		r2 = r.getRandomRiver();
+	int timeTaken = getUserInputTime(out, in);
+	userInput = checkUserInput(userInputString);
+	checkTimeLimit(timeTaken, out, in);
+
+	processUserInput(userInput, timeTaken, river1, river2);
+
+	if (userInput == 'q')
+		return false;
+
+	// Printing result and the actual answer
+	if (isCorrectAnswer) { 
+		out << "Correct: \n"; 
 	}
-	out << r1 << std::endl;
-	out << r2 << std::endl;
+	else { 
+		out << "Incorrect: \n"; 
+	}
+	out << "The river " << river1 << " is in " << r.getContinent(river1) << "\n" << "The river " << river2 << " is in " << r.getContinent(river2) << "\n";
 
-	// Getting the continets for the rivers
-	std::string c1 = r.getContinent(r1);
-	std::string c2 = r.getContinent(r2);
+	increaseTotal();
+	return true;
+}
 
-	// Boolean for continent check
-	bool isSameContinent = r.sameContinent(r1, r2);
 
-	// Receive user input and check if it's a character
+
+int Game::getUserInputTime(std::ostream& out, std::istream& in) 
+{
+	auto startTime = std::chrono::steady_clock::now();
 	in >> userInputString;
-	if (userInputString.length() > 1) {
-		// Set to x as it's a string and then simply treated as an incorrect input
+	auto endTime = std::chrono::steady_clock::now();
+	int timeTaken = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+	return timeTaken;
+}
+
+
+
+char Game::checkUserInput(std::string userString) 
+{
+	if (userString.length() > 1) {
+		// Set char input to 'x' as input was a string, and then simply treated as an incorrect input
 		userInput = 'x';
 	}
 	else {
-		userInput = userInputString[0];
+		userInput = userString[0];
 	}
+	return userInput;
+}
 
+
+
+void Game::checkTimeLimit(int timeTaken, std::ostream& out, std::istream& in) 
+{
+	// Checking whether user took more than 10 seconds (10,000 milliseconds) to enter a response
+	if (timeTaken >= 10000) {
+		// Set char input to 'x' as the time limit is exceeded, and then simply treat it as an incorrect input
+		userInput = 'x';
+		out << "Time limit exceeded!\n";
+	}
+}
+
+
+
+void Game::processUserInput(char userInput, int timeTaken, std::string river1, std::string river2) {
 	// Checking for the correct response and updating the score accordingly
-	if (userInput == 's') {
-		if (isSameContinent) {
-			isCorrectAnswer = true;
-			++score;
-		}
-		else {
-			isCorrectAnswer = false;
-		}
-	}
-	else if (userInput == 'd') {
-		if (isSameContinent) {
-			isCorrectAnswer = false;
-		}
-		else {
-			isCorrectAnswer = true;
-			++score;
-		}
-	}
-	else if (userInput == 'q') {
-		return false;
-	}
-	else {
-		isCorrectAnswer = false;
-	}
-
-	// Print correct or incorrect and the actual continents of the rivers
+	isCorrectAnswer = (userInput == 's' && r.sameContinent(river1, river2)) || (userInput == 'd' && !r.sameContinent(river1, river2));
 	if (isCorrectAnswer) {
-		out << "Correct: \n";
+		correctlyAnsweredQuestions.emplace_back(river1 + "," + river2, timeTaken);
+		increaseScore();
 	}
-	else {
-		out << "Incorrect: \n";
-	}
-	out << "The river " << r1 << " is in " << c1 << "\n";
-	out << "The river " << r2 << " is in " << c2 << "\n";
+}
 
-	++total;
-	return true;
+
+
+std::vector<std::string> Game::getFastest() 
+{
+	sortUserAnswers();
+
+	// Adding top five fastest answers in correctlyAnsweredQuestions to topFiveFastestAnswers vector list 
+	std::vector<std::string> topFiveFastestAnswers;
+	int topFiveCounter = 0;
+	for (const auto& answer : correctlyAnsweredQuestions) {
+		if (topFiveCounter >= 5) {
+			break;
+		}
+		topFiveFastestAnswers.push_back(answer.first + "," + std::to_string(answer.second));
+		topFiveCounter++;
+	}
+	return topFiveFastestAnswers;
+}
+
+
+
+// Sorting all answers in the correctlyAnsweredQuestions vector list into descending order (fastest at the top) using a lambda function 
+void Game::sortUserAnswers() 
+{
+	// Code adapted from Sneh, 2022.
+	std::sort(correctlyAnsweredQuestions.begin(), correctlyAnsweredQuestions.end(), [](const auto& lhs, const auto& rhs) { return lhs.second < rhs.second; });
+	// End of adapted code. 
 }

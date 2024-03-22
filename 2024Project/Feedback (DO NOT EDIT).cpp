@@ -553,7 +553,7 @@ bool AdvancedTests::checkSorted() {
 		}
 	}
 	std::vector<std::string> sorts = g.getFastest();
-	if (sorts.size() > 5)
+	if (sorts.size() == 0 || sorts.size() > 5)
 		return false;
 	double last(-1);
 	for (auto i : sorts) {
