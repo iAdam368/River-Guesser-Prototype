@@ -8,19 +8,26 @@
 
 class Game {
 	Rivers r;
-	//further variables...
+	int score = 0;
+	int total = 0;
+	std::string userInputString;
+	char userInput;
+	bool isCorrectAnswer = false;
+
 
 public:
 	Game(Rivers& rivers) : r(rivers) { }
-	int getScore() { return 0; }
-	int getTotal() { return 0; }
-	//reset score and total to 0
-	void reset() { }
+	int getScore() { return score; }
+	int getTotal() { return total; }
 
-	//this method should implement one round of the game only, 
-	//it should return true if the player wishes to continue ('s' or 'd') and false otherwise ('q')
+	void reset() {
+		score = 0;
+		total = 0;
+	}
+
 	bool playRound(std::ostream& out, std::istream& in);
-	
+
+
 	//No need to implement this until assignment 2 
 	std::vector<std::string> getFastest() { return std::vector<std::string>(); }
 };
